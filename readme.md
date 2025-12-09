@@ -1,5 +1,6 @@
 # khinsider.py
 
+This is a fixed version of the original khinsider. The fix was taken from issue #117 of the original khinsider repo. The only thing changed in this repo is the fix (which just adds a 'normal' useragent header to every request)
 `khinsider.py` is a [Python](https://www.python.org/) interface and script for getting [khinsider](http://downloads.khinsider.com/) soundtracks. It makes khinsider mass downloads a breeze. It's easy to use - check it!
 
 From the command line (i.e. regular usage):
