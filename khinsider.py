@@ -3,25 +3,17 @@
 
 # A script to download full soundtracks from KHInsider.
 
-# __future__ import for forwards compatibility with Python 3
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import os
 import re
 import sys
-from functools import wraps
 from itertools import chain
-
-try:
-    from urllib.parse import unquote, urljoin, urlsplit
-except ImportError: # Python 2
-    from urlparse import unquote, urljoin, urlsplit
-
-try: # Python 2
-    from os import getcwdu as getcwd
-except ImportError:
-    from os import getcwd
+from urllib.parse import unquote, urljoin, urlsplit
+from os import getcwd
+from importlib.util import find_spec as find_module
+import requests
+import argparse
+from bs4 import BeautifulSoup
+from functools import wraps
 
 class Silence(object):
     def __enter__(self):
@@ -41,24 +33,11 @@ class Silence(object):
 # rest of the module, and doesn't even run if the module isn't run by itself.)
 
 if __name__ == '__main__':
-    # To check for the existence of modules without importing them.
-    # Apparently imp and importlib are a forest of deprecation!
-    # The API was changed once in 3.3 (deprecating imp),
-    # and then again in 3.4 (deprecating the 3.3 API).
-    # So.... we have to do this dance to avoid deprecation warnings.
-    try:
-        try:
-            from importlib.util import find_spec as find_module # Python 3.4+
-        except ImportError:
-            from importlib import find_loader as find_module # Python 3.3
-    except ImportError:
-        from imp import find_module # Python 2
-
     # User-friendly name, import name, pip specification.
-    requiredModules = [
-        ['requests', 'requests', 'requests >= 2.0.0, < 3.0.0'],
-        ['Beautiful Soup 4', 'bs4', 'beautifulsoup4 >= 4.4.0, < 5.0.0']
-    ]
+    requiredModules = {
+        'requests': 'requests >= 2.0.0, < 3.0.0',
+        'bs4': 'beautifulsoup4 >= 4.4.0, < 5.0.0'
+    }
 
     def moduleExists(name):
         try:
@@ -69,8 +48,8 @@ if __name__ == '__main__':
             return result is not None
     def neededInstalls(requiredModules=requiredModules):
         uninstalledModules = []
-        for module in requiredModules:
-            if not moduleExists(module[1]):
+        for module in requiredModules.keys():
+            if not moduleExists(module):
                 uninstalledModules.append(module)
         return uninstalledModules
 
@@ -87,7 +66,7 @@ if __name__ == '__main__':
                 print("Installing {}...".format(module[0]))
             
             try:
-                install(module[2])
+                install(requiredModules[module])
             except OSError as e:
                 if verbose:
                     print("Failed to install {}. "
@@ -115,12 +94,9 @@ if __name__ == '__main__':
     try:
         installRequiredModules(needed)
     except OSError:
-        sys.exit(1)
+        print('Unknown OSError. Report to https://killshott3r/khinsider/issues')
 
 # ------
-
-import requests
-from bs4 import BeautifulSoup
 
 BASE_URL = 'https://downloads.khinsider.com/'
 
@@ -144,17 +120,6 @@ def to_valid_filename(s):
 
 
 # Different printin' for different Pythons.
-def unicodePrint(*args, **kwargs):
-    unicodeType = str if sys.version_info[0] > 2 else unicode
-    encoding = sys.stdout.encoding or 'utf-8'
-    args = [
-        arg.encode(encoding, 'replace').decode(encoding)
-        if isinstance(arg, unicodeType) else arg
-        for arg in args
-    ]
-    print(*args, **kwargs)
-
-
 def lazyProperty(func):
     attrName = '_lazy_' + func.__name__
     @property
@@ -164,7 +129,6 @@ def lazyProperty(func):
             setattr(self, attrName, func(self))
         return getattr(self, attrName)
     return lazyVersion
-
 
 def getSoup(*args, **kwargs):
     if 'headers' not in kwargs:
@@ -223,10 +187,10 @@ def friendlyDownloadFile(file, path, index, total, verbose=False):
     
     if not os.path.exists(path):
         if verbose:
-            unicodePrint("Downloading {}: {}{}...".format(numberStr, filename, byTheWay))
+            print("Downloading {}: {}{}...".format(numberStr, filename, byTheWay))
         for triesElapsed in range(3):
             if verbose and triesElapsed:
-                unicodePrint("Couldn't download {}. Trying again...".format(filename), file=sys.stderr)
+                print("Couldn't download {}. Trying again...".format(filename), file=sys.stderr)
             try:
                 file.download(path)
             except (requests.ConnectionError, requests.Timeout):
@@ -235,11 +199,11 @@ def friendlyDownloadFile(file, path, index, total, verbose=False):
                 break
         else:
             if verbose:
-                unicodePrint("Couldn't download {}. Skipping over.".format(filename), file=sys.stderr)
+                print("Couldn't download {}. Skipping over.".format(filename), file=sys.stderr)
             return False
     else:
         if verbose:
-            unicodePrint("Skipping over {}: {}{}. Already exists.".format(numberStr, filename, byTheWay))
+            print("Skipping over {}: {}{}. Already exists.".format(numberStr, filename, byTheWay))
 
     return True
 
@@ -459,7 +423,7 @@ def download(soundtrackId, path='', makeDirs=True, formatOrder=None, verbose=Fal
     soundtrack.name # To conistently always load the content in advance.
     path = to_valid_filename(soundtrack.name) if path is None else path
     if verbose:
-        unicodePrint("Downloading to \"{}\".".format(path))
+        print("Downloading to \"{}\".".format(path))
     return soundtrack.download(path, makeDirs, formatOrder, verbose)
 
 
@@ -516,13 +480,11 @@ def printSearchResults(searchResults, file=sys.stdout):
             for soundtrack in soundtracks:
                 s += "{} {}. {}\n".format(soundtrack.id, '.' * (padLen - len(soundtrack.id)), soundtrack.name)
             hasPreviousList = True
-    unicodePrint(s, end="", file=file)
+    print(s, end="", file=file)
 
 # --- And now for the execution. ---
 
 if __name__ == '__main__':
-    import argparse
-
     SCRIPT_NAME = os.path.split(sys.argv[0])[-1]
     REPORT_STR = ("If it isn't too much to ask, please report to "
                   "https://github.com/obskyr/khinsider/issues.")
@@ -685,3 +647,4 @@ if __name__ == '__main__':
         return 0
     
     sys.exit(doIt())
+
