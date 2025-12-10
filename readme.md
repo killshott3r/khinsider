@@ -1,4 +1,4 @@
-[#](#.md) khinsider.py
+# khinsider.py
 
 This is a fixed version of the [original khinsider.py](https://github.com/obskyr/khinsider). The fix was taken from issue [#117](https://github.com/obskyr/khinsider/issues/117) of the original khinsider repo.
 
