@@ -22,9 +22,13 @@ For anime music, [check out `thehylia.py`](https://github.com/obskyr/thehylia).
 
 Carefully put together by [@obskyr](http://twitter.com/obskyr)!
 
-### **[Download it here!](https://github.com/obskyr/khinsider/archive/master.zip)**
+### **[Download it here!](https://github.com/killshott3r/khinsider/releases/download/v1.0.0/khinsider.py)**
 
 ## Usage
+
+You're going to need [Python](https://www.python.org/downloads/) (if you don't know which version to get, choose the latest version of Python 3), so install that (and [add it to your path](http://superuser.com/a/143121)) if you haven't already.
+
+You will also need to have [pip](https://pip.readthedocs.org/en/latest/installing.html) installed (if you have Python 3, it is most likely already installed - otherwise, download `get-pip.py` and run it) if you don't already have [requests](https://pypi.python.org/pypi/requests) and [Beautiful Soup 4](https://pypi.python.org/pypi/beautifulsoup4). The first time `khinsider.py` runs, it will install these two for you.
 
 Just run `khinsider.py` from the command line with the sole parameter being the soundtrack you want to download. You can either use the soundtrack's ID, or simply copy its entire URL. Easy!
 
@@ -37,10 +41,6 @@ khinsider.py --format flac mother-3
 ```
 
 If you don't want to go to the actual site to look for soundtracks, you can also just type a search term as the first parameter(s), and provided it's not a valid soundtrack, `khinsider.py` will give you a list of soundtracks matching that term.
-
-You're going to need [Python](https://www.python.org/downloads/) (if you don't know which version to get, choose the latest version of Python 3 - `khinsider.py` works with both 2 and 3), so install that (and [add it to your path](http://superuser.com/a/143121)) if you haven't already.
-
-You will also need to have [pip](https://pip.readthedocs.org/en/latest/installing.html) installed (if you have Python 3, it is most likely already installed - otherwise, download `get-pip.py` and run it) if you don't already have [requests](https://pypi.python.org/pypi/requests) and [Beautiful Soup 4](https://pypi.python.org/pypi/beautifulsoup4). The first time `khinsider.py` runs, it will install these two for you.
 
 For more detailed information, try running `khinsider.py --help`!
 
