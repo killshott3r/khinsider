@@ -10,9 +10,6 @@ from itertools import chain
 from urllib.parse import unquote, urljoin, urlsplit
 from os import getcwd
 from importlib.util import find_spec as find_module
-import requests
-import argparse
-from bs4 import BeautifulSoup
 from functools import wraps
 
 class Silence(object):
@@ -97,6 +94,10 @@ if __name__ == '__main__':
         print('Unknown OSError. Report to https://killshott3r/khinsider/issues')
 
 # ------
+
+import requests
+import argparse
+from bs4 import BeautifulSoup
 
 BASE_URL = 'https://downloads.khinsider.com/'
 
@@ -556,6 +557,14 @@ if __name__ == '__main__':
         soundtrack = m.group('soundtrack') if m is not None else soundtrack
 
         outPath = arguments.outPath # Can be None; handled in download().
+        # Fix for windows cmd.exe not handling single quoted strings as regular strings
+        if outPath and outPath.startswith("'") and arguments.trailingArguments:
+            tempPath = " ".join([outPath] + arguments.trailingArguments)
+            if tempPath.endswith("'"):
+                outPath = tempPath.strip("'")
+                arguments.trailingArguments = []
+        if outPath:
+            outPath = outPath.strip("'").strip('"')
 
         # I think this makes the most sense for people who aren't used to the
         # command line - this'll yield useful results even if you just type
