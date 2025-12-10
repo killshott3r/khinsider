@@ -74,7 +74,7 @@ There's a lot more detail to the API - more than would be sensible to write here
 
 You can easily get to me in these ways:
 
-* [@obskyr](http://twitter.com/obskyr/) on Twitter!
-* [E-mail](mailto:powpowd@gmail.com) me!
+* @ob0a on Discord!
+* [E-mail](mailto:trialspoofer@gmail.com) me!
 
 I'd love to hear it if you like `khinsider.py`! If there's a problem, or you'd like a new feature, submit an issue here on GitHub.
